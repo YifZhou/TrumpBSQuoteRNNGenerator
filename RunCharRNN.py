@@ -7,7 +7,7 @@ import hyperParamConfig
 from rnnModel import CharRNNModel
 import time
 import os
-from dataReader import DataReader
+from BSReader import DataReader
 import numpy as np
 import shutil
 import tensorflow as tf
@@ -45,7 +45,7 @@ def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPer
 
   global global_step, lowest_validation_perplexity, epochCount
 
-  start_time = time.time()
+  # start_time = time.time()
   accumulatedCosts = 0.0
   accumulatedNumberOfTimeSteps = 0
   currentModelState = model.initial_state.eval()
@@ -53,20 +53,20 @@ def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPer
 
   lowest_perplexity = 2000
 
-  for num_time_steps_blocksCounter, (x_stepsBatchedInputData, y_stepsBatchedOutputData) in enumerate(data_reader.generateXYPairIterator(data, model.config.batch_size, model.config.num_time_steps)):
-    global_step= global_step+1
+  for num_time_steps_blocksCounter, (x_stepsBatchedInputData, y_stepsBatchedOutputData) in enumerate(data_reader.generateXYPairIterator(data, model.config.batch_size, model.config.sequence_size)):
+    # global_step= global_step+1
     feed_dict = {model._inputX: x_stepsBatchedInputData, model._inputTargetsY: y_stepsBatchedOutputData, model.initial_state: currentModelState}
 
     cost, currentModelState, _ = session.run([model.cost,  model.final_state, tensorOperationToPerform], feed_dict)
     accumulatedCosts += cost
-    accumulatedNumberOfTimeSteps += model.config.num_time_steps
+    accumulatedNumberOfTimeSteps += model.config.sequence_size
     perplexity =  np.exp(accumulatedCosts / accumulatedNumberOfTimeSteps)
 
-    speed = accumulatedNumberOfTimeSteps * model.config.batch_size / (time.time() - start_time)
+    # speed = accumulatedNumberOfTimeSteps * model.config.batch_size / (time.time() - start_time)
 
     if modelType == "training" and num_time_steps_blocksCounter != 0 and num_time_steps_blocksCounter % tf.flags.FLAGS.checkpoint_every == 0:
-      epochPercentageAccomplished = num_time_steps_blocksCounter * 100.0 / ((  (len(data_reader.get_training_data()) // model.config.batch_size) - 1) // model.config.num_time_steps)
-      print("Epoch %d %.3f%%, Perplexity: %.3f , Speed: %.0f wps" % (epochCount, epochPercentageAccomplished, perplexity, speed))
+      epochPercentageAccomplished = num_time_steps_blocksCounter * 100.0 / ((  (len(data_reader.get_training_data()) // model.config.batch_size) - 1) // model.config.sequence_size)
+      print("Epoch %d %.3f%%, Perplexity: %.3f" % (epochCount, epochPercentageAccomplished, perplexity))
 
       if perplexity < lowest_perplexity:
         lowest_perplexity = perplexity
@@ -123,7 +123,7 @@ def get_prediction(dataReader, session, total_tokens, output_tokens = [' ']):
 
   for token_count in xrange(total_tokens):
       next_token = output_tokens[token_count]
-      input = np.full((test_model.config.batch_size, test_model.config.num_time_steps), dataReader.token_to_id[next_token], dtype=np.int32)
+      input = np.full((test_model.config.batch_size, test_model.config.sequence_size), dataReader.token_to_id[next_token], dtype=np.int32)
       feed = {test_model._inputX: input, test_model._initial_state:state}
       [predictionSoftmax, state] =  session.run([test_model._predictionSoftmax, test_model._final_state], feed)
 

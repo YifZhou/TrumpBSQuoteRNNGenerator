@@ -27,7 +27,7 @@ class DebuggingCharTokenConfig(object):
   learning_rate = 0.002
   max_grad_norm = 5
   num_layers = 2
-  num_time_steps = 50 # num_time_steps need to be smaller than batch_len (batch_len = data_len // batch_size) otherwise there is no epoch to go through
+  sequence_size = 50 # num_time_steps need to be smaller than batch_len (batch_len = data_len // batch_size) otherwise there is no epoch to go through
   batch_size = 50
   hidden_size = 128
   #Seems that even in char-rnn-tensorflow code he equates them so for the moment I'm keeping them equal

@@ -16,15 +16,15 @@ class CharRNNModel(object):
   def __init__(self, vocabularySize, is_training, config_param):
     self.vocabularySize = vocabularySize
     self.config = config_param
-    self._inputX = tf.placeholder(tf.int32, [self.config.batch_size, self.config.num_time_steps], "InputsX")
-    self._inputTargetsY = tf.placeholder(tf.int32, [self.config.batch_size, self.config.num_time_steps], "InputTargetsY")
+    self._inputX = tf.placeholder(tf.int32, [self.config.batch_size, self.config.sequence_size], "InputsX")
+    self._inputTargetsY = tf.placeholder(tf.int32, [self.config.batch_size, self.config.sequence_size], "InputTargetsY")
 
 
     #Converting Input in an Embedded form
     with tf.device("/cpu:0"): #Tells Tensorflow what GPU to use specifically
       embedding = tf.get_variable("embedding", [self.vocabularySize, self.config.embeddingSize])
       embeddingLookedUp = tf.nn.embedding_lookup(embedding, self._inputX)
-      inputs = tf.split(1, self.config.num_time_steps, embeddingLookedUp)
+      inputs = tf.split(1, self.config.sequence_size, embeddingLookedUp)
       inputTensorsAsList = [tf.squeeze(input_, [1]) for input_ in inputs]
 
 
@@ -40,7 +40,7 @@ class CharRNNModel(object):
     self._predictionSoftmax = tf.nn.softmax(self._logits)
 
     #Define the loss
-    loss = seq2seq.sequence_loss_by_example([self._logits], [tf.reshape(self._inputTargetsY, [-1])], [tf.ones([self.config.batch_size * self.config.num_time_steps])], self.vocabularySize)
+    loss = seq2seq.sequence_loss_by_example([self._logits], [tf.reshape(self._inputTargetsY, [-1])], [tf.ones([self.config.batch_size * self.config.sequence_size])], self.vocabularySize)
     self._cost = tf.div(tf.reduce_sum(loss), self.config.batch_size)
 
     self._final_state = states[-1]
