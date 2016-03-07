@@ -22,20 +22,18 @@ class CharRNNModel(object):
 
 
     inputTensorsAsList = self.prepareInputInBatchedFormWithEmbeddings(self.config)
-    
+
+
     #Define Tensor RNN
     singleRNNCellArch = rnn_cell.BasicRNNCell(self.config.hidden_size)
     self.cell =  rnn_cell.MultiRNNCell([singleRNNCellArch] * self.config.num_layers)
     #TODO Remove that line
     multiLayerRNNCellArch =self.cell
 
-
-
     self._initial_state = multiLayerRNNCellArch.zero_state(self.config.batch_size, tf.float32)
-
-
-
-    self._logits, states = self.defineTensorRNNOperation(multiLayerRNNCellArch, inputTensorsAsList, self.config)
+    outputOfRecurrentHiddenLayer, states = rnn.rnn(multiLayerRNNCellArch, inputTensorsAsList, initial_state=self._initial_state)
+    outputOfRecurrentHiddenLayer = tf.reshape(tf.concat(1, outputOfRecurrentHiddenLayer), [-1, self.config.hidden_size])
+    self._logits = tf.nn.xw_plus_b(outputOfRecurrentHiddenLayer, tf.get_variable("softmax_w", [self.config.hidden_size, self.vocabularySize]), tf.get_variable("softmax_b", [self.vocabularySize]))
 
 
     #Define the loss

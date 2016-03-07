@@ -84,7 +84,7 @@ def main(unused_args):
 
   consolePrint = ConsolePrint()
 
-  config = hyperParamConfig.get_config(tf.flags.FLAGS.model_config)
+  config = hyperParamConfig.get_config()
 
 
   with tf.Graph().as_default(), tf.Session() as session:
@@ -93,7 +93,7 @@ def main(unused_args):
     with tf.variable_scope("model", reuse=None, initializer=initializer):
       training_model = CharRNNModel("Training", data_reader.vocabularySize, is_training=True, config_param=config)
     with tf.variable_scope("model", reuse=True, initializer=initializer):
-      eval_config = hyperParamConfig.get_config(tf.flags.FLAGS.model_config)
+      eval_config = hyperParamConfig.get_config()
       #We only want to input one token at a time (not as batches) and get out the next token only
       eval_config.batch_size = 1
       eval_config.num_time_steps = 1
