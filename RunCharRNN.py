@@ -96,9 +96,6 @@ def main(unused_args):
     with tf.variable_scope("model", reuse=None, initializer=initializer):
       training_model = CharRNNModel("Training", data_reader.vocabularySize, is_training=True, config_param=config)
     with tf.variable_scope("model", reuse=True, initializer=initializer):
-      global validation_model
-      validation_model = CharRNNModel("Validation", data_reader.vocabularySize, is_training=False, config_param=config)
-
       eval_config = hyperParamConfig.get_config(tf.flags.FLAGS.model_config)
       #We only want to input one token at a time (not as batches) and get out the next token only
       eval_config.batch_size = 1
