@@ -23,8 +23,8 @@ if os.path.exists(model_run_outputs):
 # timestamp = str(int(time.time()))
 current_run_out_dir = model_run_outputs
 
-tf.flags.DEFINE_string("model_config", "debugWordToken","A type of model. Possible options are: small, medium, large.")
-# tf.flags.DEFINE_string("model_config", "debugCharToken","A type of model. Possible options are: small, medium, large.")
+# tf.flags.DEFINE_string("model_config", "debugWordToken","A type of model. Possible options are: small, medium, large.")
+tf.flags.DEFINE_string("model_config", "debugCharToken","A type of model. Possible options are: small, medium, large.")
 
 tf.flags.DEFINE_string("data_path", "rnnInputData/DT_849Q.txt", "The path point to the training and testing data")
 # tf.flags.DEFINE_string("data_path", "rnnInputData/rnn_input_text.txt", "The path point to the training and testing data")
@@ -82,7 +82,7 @@ def main(unused_args):
   if not tf.flags.FLAGS.data_path:
     raise ValueError("Must set --data_path to PTB data directory")
 
-  data_reader = DataReader(tf.flags.FLAGS.data_path,False,5,True)
+  data_reader = DataReader(tf.flags.FLAGS.data_path,True,5,False)
   data_reader.print_data_info()
 
   consolePrint = ConsolePrint()
