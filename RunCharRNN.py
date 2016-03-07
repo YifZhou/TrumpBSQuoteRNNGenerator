@@ -20,22 +20,19 @@ model_run_outputs = os.path.join(os.path.curdir, "ModelRunsOutput/CurrentRuns")
 if os.path.exists(model_run_outputs):
   shutil.rmtree(model_run_outputs)
 
-# timestamp = str(int(time.time()))
+
 current_run_out_dir = model_run_outputs
 
-# tf.flags.DEFINE_string("model_config", "debugWordToken","A type of model. Possible options are: small, medium, large.")
+
 tf.flags.DEFINE_string("model_config", "debugCharToken","A type of model. Possible options are: small, medium, large.")
 
-tf.flags.DEFINE_string("data_path", "rnnInputData/DT_849Q.txt", "The path point to the training and testing data")
-# tf.flags.DEFINE_string("data_path", "rnnInputData/rnn_input_text.txt", "The path point to the training and testing data")
+tf.flags.DEFINE_string("data_path", "TrumpBSQuotes.txt", "The path point to the training and testing data")
+
 
 tf.flags.DEFINE_string("checkpoint_path", os.path.join(current_run_out_dir, "ModelCheckpoint"), "Model Checkpoints")
 tf.flags.DEFINE_integer("checkpoint_every", 1, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("print_status_update_every", 100, "Prints a status update of the models after this many steps (default: 100)")
 
-tf.flags.DEFINE_integer("tensorboard_status_update_every", 100, "Records a tensorboard summary of the models after this many steps (default: 100)")
-tensorboard_dir = os.path.join(current_run_out_dir, "TensorboardSummary")
-tf.flags.DEFINE_string("tensorboard_path", os.path.abspath(tensorboard_dir), "Tensorboard reports")
 
 
 if not os.path.exists(tf.flags.FLAGS.checkpoint_path):

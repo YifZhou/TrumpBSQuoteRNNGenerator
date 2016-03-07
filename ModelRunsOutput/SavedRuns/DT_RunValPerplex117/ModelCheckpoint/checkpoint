@@ -1,6 +1,0 @@
-model_checkpoint_path: "./ModelRunsOutput/CurrentRuns/ModelCheckpoint/epoch_val_perplexity_117.64_globalStep-762"
-all_model_checkpoint_paths: "./ModelRunsOutput/CurrentRuns/ModelCheckpoint/epoch_val_perplexity_269.76_globalStep-238"
-all_model_checkpoint_paths: "./ModelRunsOutput/CurrentRuns/ModelCheckpoint/epoch_val_perplexity_153.38_globalStep-369"
-all_model_checkpoint_paths: "./ModelRunsOutput/CurrentRuns/ModelCheckpoint/epoch_val_perplexity_135.20_globalStep-500"
-all_model_checkpoint_paths: "./ModelRunsOutput/CurrentRuns/ModelCheckpoint/epoch_val_perplexity_120.58_globalStep-631"
-all_model_checkpoint_paths: "./ModelRunsOutput/CurrentRuns/ModelCheckpoint/epoch_val_perplexity_117.64_globalStep-762"
