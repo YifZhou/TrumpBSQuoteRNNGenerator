@@ -11,11 +11,12 @@ from tensorflow.models.rnn import rnn_cell
 from tensorflow.models.rnn import seq2seq
 
 
-class CharRNNModel(object):
+class TrumpBSModel(object):
 
-  def __init__(self, vocabularySize, is_training, config_param):
+  def __init__(self, vocabularySize, config_param):
     self.vocabularySize = vocabularySize
     self.config = config_param
+
     self._inputX = tf.placeholder(tf.int32, [self.config.batch_size, self.config.sequence_size], "InputsX")
     self._inputTargetsY = tf.placeholder(tf.int32, [self.config.batch_size, self.config.sequence_size], "InputTargetsY")
 
@@ -44,14 +45,6 @@ class CharRNNModel(object):
     self._cost = tf.div(tf.reduce_sum(loss), self.config.batch_size)
 
     self._final_state = states[-1]
-
-
-
-
-    if not is_training:
-      return
-
-    self.defineTensorGradientDescent()
 
 
   def defineTensorGradientDescent(self):
