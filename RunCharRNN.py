@@ -44,7 +44,7 @@ if not os.path.exists(tf.flags.FLAGS.checkpoint_path):
 global_step = 0
 lowest_validation_perplexity = 1000
 
-def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPerform, consolePrint, summary_writer, saver):
+def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPerform, consolePrint, saver):
 
   global global_step, lowest_validation_perplexity
 
@@ -54,18 +54,13 @@ def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPer
   currentModelState = model.initial_state.eval()
 
 
-  #TODO refactor this into a function called single training step
-
-  #TODO I need to refactor this code and run the train and dev within the same x_stepsBatchedInputData blocks like in https://github.com/dennybritz/cnn-text-classification-tf/blob/master/train.py
-  # that might solve my problem
-
   lowest_perplexity = 2000
 
   for num_time_steps_blocksCounter, (x_stepsBatchedInputData, y_stepsBatchedOutputData) in enumerate(data_reader.generateXYPairIterator(data, model.config.batch_size, model.config.num_time_steps)):
     global_step= global_step+1
     feed_dict = {model._inputX: x_stepsBatchedInputData, model._inputTargetsY: y_stepsBatchedOutputData, model.initial_state: currentModelState}
 
-    cost, currentModelState, summaryOutput, _ = session.run([model.cost,  model.final_state, model.merged_summary_tensorOperation, tensorOperationToPerform], feed_dict)
+    cost, currentModelState, _ = session.run([model.cost,  model.final_state, tensorOperationToPerform], feed_dict)
     accumulatedCosts += cost
     accumulatedNumberOfTimeSteps += model.config.num_time_steps
     perplexity =  np.exp(accumulatedCosts / accumulatedNumberOfTimeSteps)
@@ -73,25 +68,13 @@ def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPer
     speed = accumulatedNumberOfTimeSteps * model.config.batch_size / (time.time() - start_time)
 
     if modelType == "training" and num_time_steps_blocksCounter != 0 and num_time_steps_blocksCounter % tf.flags.FLAGS.checkpoint_every == 0:
-      summary_writer.add_summary(summaryOutput,global_step)
       consolePrint.print_batch_status(model.model_name, num_time_steps_blocksCounter, perplexity, speed)
       if perplexity < lowest_perplexity:
         lowest_perplexity = perplexity
         get_prediction(data_reader, session, 500, get_initial_see_tokens(data_reader.char_mode))
 
 
-      # global validation_model
-      # validation_perplexity, validation_summaryOutput = run_epoch("validating", data_reader, session, validation_model, data_reader.get_validation_data(), tf.no_op(), consolePrint, summary_writer, saver)
-      # summary_writer.add_summary(validation_summaryOutput,global_step)
-      # if validation_perplexity < lowest_validation_perplexity:
-      #   lowest_validation_perplexity = validation_perplexity
-      #   consolePrint.print_batch_status(model.model_name, num_time_steps_blocksCounter, perplexity, speed)
-      #   model_values = 'epoch_val_perplexity_%.2f_globalStep' % (lowest_validation_perplexity)
-      #   print("creating a checkpoint file")
-      #   checkpoint_file_path = os.path.join(tf.flags.FLAGS.checkpoint_path, model_values)
-      #   saver.save(session, checkpoint_file_path,global_step=global_step)
-
-  return perplexity, summaryOutput
+  return perplexity
 
 
 def main(unused_args):
@@ -124,7 +107,6 @@ def main(unused_args):
       test_model = CharRNNModel("Testing", data_reader.vocabularySize, is_training=False, config_param=eval_config)
 
 
-    summary_writer = create_tensorboard_variables(session.graph_def, training_model, validation_model)
     saver = tf.train.Saver(tf.all_variables())
 
     tf.initialize_all_variables().run()
@@ -136,25 +118,13 @@ def main(unused_args):
       learningRateDecay = config.lr_decay ** max(epochCount - config.initialLearningRate_max_epoch, 0.0)
       training_model.assign_learningRate(session, config.learning_rate * learningRateDecay)
 
-      run_epoch("training", data_reader, session, training_model, data_reader.get_training_data(), training_model.tensorGradientDescentTrainingOperation, consolePrint, summary_writer, saver)
+      run_epoch("training", data_reader, session, training_model, data_reader.get_training_data(), training_model.tensorGradientDescentTrainingOperation, consolePrint, saver)
 
-    run_epoch("testing", data_reader, session, test_model, data_reader.get_test_data(), tf.no_op(), consolePrint, summary_writer, saver)
+    run_epoch("testing", data_reader, session, test_model, data_reader.get_test_data(), tf.no_op(), consolePrint, saver)
 
   session.close()
 
-def create_tensorboard_variables(session_graph, training_model, validation_model):
-  training_logit_summary = tf.histogram_summary("Training Logits", training_model._logits)
-  training_learning_rate_summary = tf.scalar_summary("Training Learning Rate", training_model._learningRate)
-  training_cost_summary = tf.scalar_summary("Training Cost Summary", training_model._cost)
 
-  training_model.merged_summary_tensorOperation = tf.merge_summary([training_logit_summary, training_learning_rate_summary, training_cost_summary])
-
-  validation_cost_summary = tf.scalar_summary("Validation Cost Summary", validation_model._cost)
-  validation_model.merged_summary_tensorOperation = tf.merge_summary([validation_cost_summary])
-
-  summary_writer = tf.train.SummaryWriter(tf.flags.FLAGS.tensorboard_path, session_graph)
-
-  return summary_writer
 
 def get_prediction(dataReader, session, total_tokens, output_tokens = [' ']):
   global test_model
