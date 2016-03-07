@@ -25,9 +25,31 @@ class DataReader(object):
     self.raw_data = open(data_path, 'r').read()
 
     self.validation_data_to_training_ratio = validation_data_to_training_ratio
-    self._build_vocab_dict()
-    self._convert_raw_data_to_token_ids()
-    self._create_data_indexes()
+
+    #Build Vocabulary and Dictionaries
+    counter = collections.Counter(self.raw_data)
+    count_pairs = sorted(counter.items(), key=lambda x: -x[1])
+    self.unique_tokens, _ = list(zip(*count_pairs))
+    self.token_to_id = dict(zip(self.unique_tokens, range(len(self.unique_tokens))))
+    self.vocabularySize = len(self.unique_tokens)
+
+    #Convert Raw tokens to digits
+    self.data_as_ids = []
+    for id, token in enumerate(self.raw_data):
+      if token in self.token_to_id.keys():
+        self.data_as_ids.append(self.token_to_id[token])
+      else:
+        #TODO remove this line
+        self.data_as_ids.append(0)
+
+
+    #Create Data Indexes
+    data_size = len(self.data_as_ids)
+    training_data_ratio = 100 - (self.validation_data_to_training_ratio*2)
+    self.train_data_max_index = (data_size * training_data_ratio)//100
+    self.valid_data_min_index = self.train_data_max_index+1
+    self.valid_data_max_index = ((data_size * self.validation_data_to_training_ratio)//100)+self.train_data_max_index
+    self.test_data_min_index = self.valid_data_max_index+1
 
 
   def print_data_info(self):
@@ -43,12 +65,7 @@ class DataReader(object):
     with gfile.GFile(filename, "r") as f:
       return f.read().replace("\n", " <eos> ").split()
 
-  def _build_vocab_dict(self):
-    counter = collections.Counter(self.raw_data)
-    count_pairs = sorted(counter.items(), key=lambda x: -x[1])
-    self.unique_tokens, _ = list(zip(*count_pairs))
-    self.token_to_id = dict(zip(self.unique_tokens, range(len(self.unique_tokens))))
-    self.vocabularySize = len(self.unique_tokens)
+
 
 
   def convertDigitsToText(self, token_predicted_per_batch,  first_token=" "):
@@ -57,29 +74,6 @@ class DataReader(object):
       first_token.join(self.id_to_token[token_predicted_per_batch_item] )
 
     return first_token
-
-
-  def _create_data_indexes(self):
-    data_size = len(self.data_as_ids)
-    training_data_ratio = 100 - (self.validation_data_to_training_ratio*2)
-    self.train_data_max_index = (data_size * training_data_ratio)//100
-    self.valid_data_min_index = self.train_data_max_index+1
-    self.valid_data_max_index = ((data_size * self.validation_data_to_training_ratio)//100)+self.train_data_max_index
-    self.test_data_min_index = self.valid_data_max_index+1
-
-  def _convert_raw_data_to_token_ids(self):
-    print('Converting %d tokens into ids' % (len(self.raw_data)))
-    self.data_as_ids = []
-    for id, token in enumerate(self.raw_data):
-      epochPercentageAccomplished = id * 100.0 / len(self.raw_data)
-      if epochPercentageAccomplished%0.5 ==0:
-        print("%.3f%% percent tokens converted" % (epochPercentageAccomplished))
-      if token in self.token_to_id.keys():
-        self.data_as_ids.append(self.token_to_id[token])
-      else:
-        print("WARNING: A TOKEN COULD NOT BE ASSIGNED AN ID. SOMETHING MUST HAVE GONE WRONG IN THE INITIAL TOKEN TO ID MAPPING")
-        #TODO this should not be there, I'm currently doing it to avoid breaking whenever a char with no id is found instead I should be replacing the entire method with the following line: # return [word_to_id[word] for word in data]
-        self.data_as_ids.append(0)
 
 
 
