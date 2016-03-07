@@ -44,7 +44,7 @@ if not os.path.exists(tf.flags.FLAGS.checkpoint_path):
 global_step = 0
 lowest_validation_perplexity = 1000
 
-def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPerform, consolePrint, saver):
+def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPerform, consolePrint):
 
   global global_step, lowest_validation_perplexity
 
@@ -106,9 +106,6 @@ def main(unused_args):
       global test_model
       test_model = CharRNNModel("Testing", data_reader.vocabularySize, is_training=False, config_param=eval_config)
 
-
-    saver = tf.train.Saver(tf.all_variables())
-
     tf.initialize_all_variables().run()
 
     consolePrint.config_epoch_print_settings(len(data_reader.get_training_data()),training_model.config,10)
@@ -118,9 +115,8 @@ def main(unused_args):
       learningRateDecay = config.lr_decay ** max(epochCount - config.initialLearningRate_max_epoch, 0.0)
       training_model.assign_learningRate(session, config.learning_rate * learningRateDecay)
 
-      run_epoch("training", data_reader, session, training_model, data_reader.get_training_data(), training_model.tensorGradientDescentTrainingOperation, consolePrint, saver)
+      run_epoch("training", data_reader, session, training_model, data_reader.get_training_data(), training_model.tensorGradientDescentTrainingOperation, consolePrint)
 
-    run_epoch("testing", data_reader, session, test_model, data_reader.get_test_data(), tf.no_op(), consolePrint, saver)
 
   session.close()
 
