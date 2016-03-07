@@ -66,7 +66,7 @@ def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPer
 
     if modelType == "training" and num_time_steps_blocksCounter != 0 and num_time_steps_blocksCounter % tf.flags.FLAGS.checkpoint_every == 0:
       epochPercentageAccomplished = num_time_steps_blocksCounter * 100.0 / ((  (len(data_reader.get_training_data()) // model.config.batch_size) - 1) // model.config.num_time_steps)
-      print("Model: "+model.model_name+" , Epoch %d %.3f%%, Perplexity: %.3f , Speed: %.0f wps" % (epochCount, epochPercentageAccomplished, perplexity, speed))
+      print("Epoch %d %.3f%%, Perplexity: %.3f , Speed: %.0f wps" % (epochCount, epochPercentageAccomplished, perplexity, speed))
 
       if perplexity < lowest_perplexity:
         lowest_perplexity = perplexity
@@ -91,14 +91,14 @@ def main(unused_args):
     initializer = tf.random_uniform_initializer(-config.init_scale,config.init_scale)
 
     with tf.variable_scope("model", reuse=None, initializer=initializer):
-      training_model = CharRNNModel("Training", data_reader.vocabularySize, is_training=True, config_param=config)
+      training_model = CharRNNModel(data_reader.vocabularySize, is_training=True, config_param=config)
     with tf.variable_scope("model", reuse=True, initializer=initializer):
       eval_config = hyperParamConfig.get_config()
       #We only want to input one token at a time (not as batches) and get out the next token only
       eval_config.batch_size = 1
       eval_config.num_time_steps = 1
       global test_model
-      test_model = CharRNNModel("Testing", data_reader.vocabularySize, is_training=False, config_param=eval_config)
+      test_model = CharRNNModel(data_reader.vocabularySize, is_training=False, config_param=eval_config)
 
     tf.initialize_all_variables().run()
 

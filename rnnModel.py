@@ -13,8 +13,7 @@ from tensorflow.models.rnn import seq2seq
 
 class CharRNNModel(object):
 
-  def __init__(self, model_name, vocabularySize, is_training, config_param):
-    self.model_name = model_name
+  def __init__(self, vocabularySize, is_training, config_param):
     self.vocabularySize = vocabularySize
     self.config = config_param
     self._inputX = tf.placeholder(tf.int32, [self.config.batch_size, self.config.num_time_steps], "InputsX")
@@ -33,13 +32,13 @@ class CharRNNModel(object):
     outputOfRecurrentHiddenLayer, states = rnn.rnn(self.multilayerRNN, inputTensorsAsList, initial_state=self._initial_state)
     outputOfRecurrentHiddenLayer = tf.reshape(tf.concat(1, outputOfRecurrentHiddenLayer), [-1, self.config.hidden_size])
     self._logits = tf.nn.xw_plus_b(outputOfRecurrentHiddenLayer, tf.get_variable("softmax_w", [self.config.hidden_size, self.vocabularySize]), tf.get_variable("softmax_b", [self.vocabularySize]))
-
+    self._predictionSoftmax = tf.nn.softmax(self._logits)
 
     #Define the loss
     loss = seq2seq.sequence_loss_by_example([self._logits], [tf.reshape(self._inputTargetsY, [-1])], [tf.ones([self.config.batch_size * self.config.num_time_steps])], self.vocabularySize)
     self._cost = tf.div(tf.reduce_sum(loss), self.config.batch_size)
 
-    self._predictionSoftmax = tf.nn.softmax(self._logits)
+
 
     self._final_state = states[-1]
 
