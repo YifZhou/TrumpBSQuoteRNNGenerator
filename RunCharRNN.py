@@ -7,7 +7,6 @@ import hyperParamConfig
 from rnnModel import CharRNNModel
 import time
 import os
-from consolePrint import ConsolePrint
 from dataReader import DataReader
 import numpy as np
 import shutil
@@ -39,11 +38,12 @@ if not os.path.exists(tf.flags.FLAGS.checkpoint_path):
     os.makedirs(tf.flags.FLAGS.checkpoint_path)
 
 global_step = 0
+epochCount = 0
 lowest_validation_perplexity = 1000
 
-def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPerform, consolePrint):
+def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPerform):
 
-  global global_step, lowest_validation_perplexity
+  global global_step, lowest_validation_perplexity, epochCount
 
   start_time = time.time()
   accumulatedCosts = 0.0
@@ -65,7 +65,9 @@ def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPer
     speed = accumulatedNumberOfTimeSteps * model.config.batch_size / (time.time() - start_time)
 
     if modelType == "training" and num_time_steps_blocksCounter != 0 and num_time_steps_blocksCounter % tf.flags.FLAGS.checkpoint_every == 0:
-      consolePrint.print_batch_status(model.model_name, num_time_steps_blocksCounter, perplexity, speed)
+      epochPercentageAccomplished = num_time_steps_blocksCounter * 100.0 / ((  (len(data_reader.get_training_data()) // model.config.batch_size) - 1) // model.config.num_time_steps)
+      print("Model: "+model.model_name+" , Epoch %d %.3f%%, Perplexity: %.3f , Speed: %.0f wps" % (epochCount, epochPercentageAccomplished, perplexity, speed))
+
       if perplexity < lowest_perplexity:
         lowest_perplexity = perplexity
         get_prediction(data_reader, session, 500, ['T','h','e',' '])
@@ -81,8 +83,6 @@ def main(unused_args):
 
   data_reader = DataReader(tf.flags.FLAGS.data_path,5)
   data_reader.print_data_info()
-
-  consolePrint = ConsolePrint()
 
   config = hyperParamConfig.get_config()
 
@@ -102,14 +102,14 @@ def main(unused_args):
 
     tf.initialize_all_variables().run()
 
-    consolePrint.config_epoch_print_settings(len(data_reader.get_training_data()),training_model.config,10)
+
 
     for epochCount in range(config.total_max_epoch):
-      consolePrint.epochCount+=1
+      epochCount+=1
       learningRateDecay = config.lr_decay ** max(epochCount - config.initialLearningRate_max_epoch, 0.0)
       training_model.assign_learningRate(session, config.learning_rate * learningRateDecay)
 
-      run_epoch("training", data_reader, session, training_model, data_reader.get_training_data(), training_model.tensorGradientDescentTrainingOperation, consolePrint)
+      run_epoch("training", data_reader, session, training_model, data_reader.get_training_data(), training_model.tensorGradientDescentTrainingOperation)
 
 
   session.close()
