@@ -71,7 +71,7 @@ def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPer
       consolePrint.print_batch_status(model.model_name, num_time_steps_blocksCounter, perplexity, speed)
       if perplexity < lowest_perplexity:
         lowest_perplexity = perplexity
-        get_prediction(data_reader, session, 500, get_initial_see_tokens(data_reader.char_mode))
+        get_prediction(data_reader, session, 500, ['T','h','e',' '])
 
 
   return perplexity
@@ -82,7 +82,7 @@ def main(unused_args):
   if not tf.flags.FLAGS.data_path:
     raise ValueError("Must set --data_path to PTB data directory")
 
-  data_reader = DataReader(tf.flags.FLAGS.data_path,True,5,False)
+  data_reader = DataReader(tf.flags.FLAGS.data_path,5)
   data_reader.print_data_info()
 
   consolePrint = ConsolePrint()
@@ -137,21 +137,12 @@ def get_prediction(dataReader, session, total_tokens, output_tokens = [' ']):
           output_tokens.append(next_token)
 
   output_sentence = " "
-  if dataReader.char_mode ==True:
-    for token in output_tokens:
-      output_sentence+=token
-  else:
-    output_sentence = output_sentence.join(str(token) for token in output_tokens)
+
+  for token in output_tokens:
+    output_sentence+=token
   print('---- Prediction: \n %s \n----' % (output_sentence))
 
 
-def get_initial_see_tokens(char_mode):
-  if char_mode ==True:
-    return ['T','h','e',' ']
-  elif tf.flags.FLAGS.data_path == 'rnnInputData/DT_849Q.txt':
-    list_of_DT_topics = ['Jeb','Ben','Hillary','Ted','Carly','Lindsey','John','Martin','George','Rick','Marco','Bernie']
-    return [np.random.choice(list_of_DT_topics)]
-  return [' ']
 
 
 if __name__ == "__main__":

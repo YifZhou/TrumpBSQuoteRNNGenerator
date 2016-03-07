@@ -20,20 +20,9 @@ from tensorflow.python.platform import gfile
 
 class DataReader(object):
 
-  def __init__(self, data_path, char_mode=True, validation_data_to_training_ratio=5, shuffle_tokens=False, token_limit=None):
-    self.char_mode = char_mode;
-    if self.char_mode is False:
-      print('Running in Word Token mode')
-      self.raw_data = self._read_words(data_path)
-      if shuffle_tokens == True:
-        self.raw_data = self._shuffle_quotes(self.raw_data)
-    else:
-      print('Running in Char Token mode')
-      self.raw_data = open(data_path, 'r').read()
+  def __init__(self, data_path, validation_data_to_training_ratio=5):
 
-
-    if token_limit !=None:
-      self.raw_data = self.limit_data_size(self.raw_data,token_limit)
+    self.raw_data = open(data_path, 'r').read()
 
     self.validation_data_to_training_ratio = validation_data_to_training_ratio
     self._build_vocab_dict()
@@ -50,61 +39,22 @@ class DataReader(object):
     print('Test Data total tokens: %d tokens' % (len(self.get_test_data())))
     print('----------------------------------------')
 
-  def _shuffle_quotes(self, raw_data):
-    quote_list_to_shuffle=[]
-    current_quote=[]
-    for token in raw_data:
-      current_quote.append(token)
-      if token == '<eos>':
-        quote_list_to_shuffle.append(current_quote)
-        current_quote=[]
-
-    np.random.shuffle(quote_list_to_shuffle)
-    ret = []
-    for current_quote in quote_list_to_shuffle:
-      for token in current_quote:
-        ret.append(token)
-
-    return ret
-
   def _read_words(self, filename):
     with gfile.GFile(filename, "r") as f:
       return f.read().replace("\n", " <eos> ").split()
 
   def _build_vocab_dict(self):
-
-    if self.char_mode is False:
-       counter = collections.Counter(self.raw_data)
-       count_pairs = sorted(counter.items(), key=lambda x: -x[1])
-       self.unique_tokens, _ = list(zip(*count_pairs))
-       self.token_to_id = dict(zip(self.unique_tokens, range(len(self.unique_tokens))))
-       self.id_to_token = dict(zip(self.token_to_id.values(), self.token_to_id.keys()))
-    else:
-      counter = collections.Counter(self.raw_data)
-      count_pairs = sorted(counter.items(), key=lambda x: -x[1])
-      #equivalent to CHAR
-      self.unique_tokens, _ = list(zip(*count_pairs))
-      # self.vocab_size = len(self.chars)
-      #equivalent to vocab
-      self.token_to_id = dict(zip(self.unique_tokens, range(len(self.unique_tokens))))
-      # self.unique_tokens = list(set(self.raw_data))
-      # token_to_digit = {ch:i for i,ch in enumerate(self.unique_tokens)}
-      # self.id_to_token = {i:ch for i,ch in enumerate(self.unique_tokens)}
-      # #Killian: TODO For some strange reason the alphabetFromData variable does not include ! in it's alphabet I don't know why need to figure it out to improve accuracy
-      # #Killian: I don't understand why this line is needed since it seems to produce exactly the same variable as char_to_ix
-      # self.token_to_id = dict(zip(token_to_digit, range(len(token_to_digit))))
-
-
+    counter = collections.Counter(self.raw_data)
+    count_pairs = sorted(counter.items(), key=lambda x: -x[1])
+    self.unique_tokens, _ = list(zip(*count_pairs))
+    self.token_to_id = dict(zip(self.unique_tokens, range(len(self.unique_tokens))))
     self.vocabularySize = len(self.unique_tokens)
 
 
   def convertDigitsToText(self, token_predicted_per_batch,  first_token=" "):
-    if self.char_mode is True:
-      for token_predicted_per_batch_item in token_predicted_per_batch:
-        first_token.join(self.id_to_token[token_predicted_per_batch_item] )
-    else:
-      for token_predicted_per_batch_item in token_predicted_per_batch:
-        first_token +=str(self.id_to_token[token_predicted_per_batch_item])+str(" ")
+
+    for token_predicted_per_batch_item in token_predicted_per_batch:
+      first_token.join(self.id_to_token[token_predicted_per_batch_item] )
 
     return first_token
 
@@ -143,10 +93,6 @@ class DataReader(object):
     #I don't get what's going on there
     length = len(self.data_as_ids)-1
     return self.data_as_ids[self.test_data_min_index:length]
-
-
-
-
 
   def generateXYPairIterator(self, raw_data, batch_size, num_steps):
     raw_data = np.array(raw_data, dtype=np.int32)
