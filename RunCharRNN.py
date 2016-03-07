@@ -35,7 +35,7 @@ tf.flags.DEFINE_integer("print_status_update_every", 100, "Prints a status updat
 if not os.path.exists(tf.flags.FLAGS.checkpoint_path):
     os.makedirs(tf.flags.FLAGS.checkpoint_path)
 
-# global_step = 0
+
 epochCount = 0
 lowest_validation_perplexity = 1000
 
@@ -58,7 +58,7 @@ def main(unused_args):
     with tf.variable_scope("model", reuse=None, initializer=initializer):
       training_model = CharRNNModel(data_reader.vocabularySize, is_training=True, config_param=config)
     with tf.variable_scope("model", reuse=True, initializer=initializer):
-      eval_config = hyperParamConfig.get_config()
+      eval_config = HyperParameterConfig()
       #We only want to input one token at a time (not as batches) and get out the next token only
       eval_config.batch_size = 1
       eval_config.num_time_steps = 1
