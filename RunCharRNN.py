@@ -119,7 +119,7 @@ def main(unused_args):
 def get_prediction(dataReader, session, total_tokens, output_tokens = [' ']):
   global test_model
 
-  state = test_model.cell.zero_state(1, tf.float32).eval()
+  state = test_model.multilayerRNN.zero_state(1, tf.float32).eval()
 
   for token_count in xrange(total_tokens):
       next_token = output_tokens[token_count]
