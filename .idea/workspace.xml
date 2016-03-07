@@ -2,48 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bf341170-2d92-4292-8f11-b5c0b00d9aa4" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex117/ModelCheckpoint/checkpoint" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex117/ModelCheckpoint/epoch_val_perplexity_117.64_globalStep-762" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex117/ModelCheckpoint/epoch_val_perplexity_120.58_globalStep-631" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex117/ModelCheckpoint/epoch_val_perplexity_135.20_globalStep-500" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex117/ModelCheckpoint/epoch_val_perplexity_153.38_globalStep-369" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex117/ModelCheckpoint/epoch_val_perplexity_269.76_globalStep-238" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex117/ModelPredictions.rtf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex117/TensorboardSummary/events.out.tfevents.1455809373.Killian.local" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex85/ModelCheckpoint/checkpoint" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex85/ModelCheckpoint/epoch_val_perplexity_85.56_globalStep-1286" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex85/ModelCheckpoint/epoch_val_perplexity_86.68_globalStep-1155" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex85/ModelCheckpoint/epoch_val_perplexity_86.71_globalStep-1024" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex85/ModelCheckpoint/epoch_val_perplexity_92.87_globalStep-893" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex85/ModelCheckpoint/epoch_val_perplexity_93.74_globalStep-762" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex85/ModelPredictions.rtf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/DT_RunValPerplex85/TensorboardSummary/events.out.tfevents.1455810467.Killian.local" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/Shakes_CharValPerplex20/ModelCheckpoint/checkpoint" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/Shakes_CharValPerplex20/ModelCheckpoint/epoch_val_perplexity_20.53_globalStep-36451" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/Shakes_CharValPerplex20/ModelCheckpoint/epoch_val_perplexity_20.80_globalStep-19441" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/Shakes_CharValPerplex20/ModelCheckpoint/epoch_val_perplexity_23.11_globalStep-15796" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/Shakes_CharValPerplex20/ModelCheckpoint/epoch_val_perplexity_24.87_globalStep-9721" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/Shakes_CharValPerplex20/ModelCheckpoint/epoch_val_perplexity_25.49_globalStep-8506" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/Shakes_CharValPerplex20/TensorboardSummary/events.out.tfevents.1455727847.Killian.local" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ModelRunsOutput/SavedRuns/originalCharRNN.rtf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/OriginalCode/char-rnn-tensorflow" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/OriginalCode/originalTensorflowRNN.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/OriginalCode/original_rnn_character_code.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/OriginalCode/reader.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/.gitignore" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/DT_849Q.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/DT_text.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/ptb.char.test.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/ptb.char.train.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/ptb.char.valid.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/ptb.test.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/ptb.train.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/ptb.valid.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/rnn_input_text copy.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/rnnInputData/rnn_input_text.txt" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RunCharRNN.py" afterPath="$PROJECT_DIR$/RunCharRNN.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rnnModel.py" afterPath="$PROJECT_DIR$/rnnModel.py" />
     </list>
     <ignored path="TrumpBSQuoteRNNGenerator.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -57,7 +16,7 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/TrumpBSQuoteRNNGenerator$RunCharRNN.coverage" NAME="RunCharRNN Coverage Results" MODIFIED="1457350990587" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/TrumpBSQuoteRNNGenerator$RunCharRNN.coverage" NAME="RunCharRNN Coverage Results" MODIFIED="1457351353840" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -68,11 +27,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="RunCharRNN.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="RunCharRNN.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RunCharRNN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.32476318">
-              <caret line="28" column="54" selection-start-line="28" selection-start-column="54" selection-end-line="28" selection-end-column="54" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="43" column="23" selection-start-line="43" selection-start-column="14" selection-end-line="43" selection-end-column="23" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="rnnModel.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/rnnModel.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.35036495">
+              <caret line="24" column="4" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -98,6 +67,7 @@
       <list>
         <option value="$PROJECT_DIR$/dataReader.py" />
         <option value="$PROJECT_DIR$/RunCharRNN.py" />
+        <option value="$PROJECT_DIR$/rnnModel.py" />
       </list>
     </option>
   </component>
@@ -435,8 +405,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/RunCharRNN.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.32476318">
-          <caret line="28" column="54" selection-start-line="28" selection-start-column="54" selection-end-line="28" selection-end-column="54" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="43" column="23" selection-start-line="43" selection-start-column="14" selection-end-line="43" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rnnModel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.35036495">
+          <caret line="24" column="4" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="4" />
           <folding />
         </state>
       </provider>
