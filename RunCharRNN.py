@@ -13,27 +13,15 @@ import shutil
 import tensorflow as tf
 
 
-logging = tf.logging
-
-model_run_outputs = os.path.join(os.path.curdir, "ModelRunsOutput/CurrentRuns")
-if os.path.exists(model_run_outputs):
-  shutil.rmtree(model_run_outputs)
-
-
-current_run_out_dir = model_run_outputs
 
 tf.flags.DEFINE_string("model_config", "debugCharToken","A type of model. Possible options are: small, medium, large.")
 
 tf.flags.DEFINE_string("data_path", "TrumpBSQuotes.txt", "The path point to the training and testing data")
 
-tf.flags.DEFINE_string("checkpoint_path", os.path.join(current_run_out_dir, "ModelCheckpoint"), "Model Checkpoints")
 tf.flags.DEFINE_integer("checkpoint_every", 1, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("print_status_update_every", 100, "Prints a status update of the models after this many steps (default: 100)")
 
 
-
-if not os.path.exists(tf.flags.FLAGS.checkpoint_path):
-    os.makedirs(tf.flags.FLAGS.checkpoint_path)
 
 
 epochCount = 0
@@ -62,7 +50,7 @@ def main(unused_args):
       #We only want to input one token at a time (not as batches) and get out the next token only
       eval_config.batch_size = 1
       eval_config.num_time_steps = 1
-      global test_model
+
       test_model = CharRNNModel(data_reader.vocabularySize, is_training=False, config_param=eval_config)
 
     tf.initialize_all_variables().run()
@@ -99,22 +87,22 @@ def main(unused_args):
 
           if perplexity < lowest_perplexity:
             lowest_perplexity = perplexity
-            get_prediction(data_reader, session, 500, ['T','h','e',' '])
+            get_prediction(test_model, data_reader, session, 500, ['T','h','e',' '])
 
   session.close()
 
 
 
-def get_prediction(dataReader, session, total_tokens, output_tokens = [' ']):
-  global test_model
+def get_prediction(model, dataReader, session, total_tokens, output_tokens = [' ']):
 
-  state = test_model.multilayerRNN.zero_state(1, tf.float32).eval()
+
+  state = model.multilayerRNN.zero_state(1, tf.float32).eval()
 
   for token_count in xrange(total_tokens):
       next_token = output_tokens[token_count]
-      input = np.full((test_model.config.batch_size, test_model.config.sequence_size), dataReader.token_to_id[next_token], dtype=np.int32)
-      feed = {test_model._inputX: input, test_model._initial_state:state}
-      [predictionSoftmax, state] =  session.run([test_model._predictionSoftmax, test_model._final_state], feed)
+      input = np.full((model.config.batch_size, model.config.sequence_size), dataReader.token_to_id[next_token], dtype=np.int32)
+      feed = {model._inputX: input, model._initial_state:state}
+      [predictionSoftmax, state] =  session.run([model._predictionSoftmax, model._final_state], feed)
 
       if (len(output_tokens) -1) <= token_count:
           accumulated_sum = np.cumsum(predictionSoftmax[0])
