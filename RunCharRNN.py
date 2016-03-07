@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import hyperParamConfig
+
 from rnnModel import CharRNNModel
 import time
 import os
@@ -22,11 +22,9 @@ if os.path.exists(model_run_outputs):
 
 current_run_out_dir = model_run_outputs
 
-
 tf.flags.DEFINE_string("model_config", "debugCharToken","A type of model. Possible options are: small, medium, large.")
 
 tf.flags.DEFINE_string("data_path", "TrumpBSQuotes.txt", "The path point to the training and testing data")
-
 
 tf.flags.DEFINE_string("checkpoint_path", os.path.join(current_run_out_dir, "ModelCheckpoint"), "Model Checkpoints")
 tf.flags.DEFINE_integer("checkpoint_every", 1, "Save model after this many steps (default: 100)")
@@ -50,7 +48,8 @@ def main(unused_args):
   data_reader = DataReader(tf.flags.FLAGS.data_path,5)
   data_reader.print_data_info()
 
-  config = hyperParamConfig.get_config()
+
+  config = HyperParameterConfig()
 
 
   with tf.Graph().as_default(), tf.Session() as session:
@@ -130,7 +129,22 @@ def get_prediction(dataReader, session, total_tokens, output_tokens = [' ']):
   print('---- Prediction: \n %s \n----' % (output_sentence))
 
 
+class HyperParameterConfig(object):
+  init_scale = 0.1
+  learning_rate = 0.002
+  max_grad_norm = 5
+  num_layers = 2
+  sequence_size = 50
+  batch_size = 50
+  hidden_size = 128
+  embeddingSize = 100
+  initialLearningRate_max_epoch = 1
+  total_max_epoch = 10000
+  keep_prob = 1.0
+  lr_decay = 0.97
+
 
 
 if __name__ == "__main__":
   tf.app.run()
+
