@@ -20,7 +20,12 @@ class CharRNNModel(object):
     self._inputTargetsY = tf.placeholder(tf.int32, [self.config.batch_size, self.config.num_time_steps], "InputTargetsY")
 
 
-    inputTensorsAsList = self.prepareInputInBatchedFormWithEmbeddings(self.config)
+    #Converting Input in an Embedded form
+    with tf.device("/cpu:0"): #Tells Tensorflow what GPU to use specifically
+      embedding = tf.get_variable("embedding", [self.vocabularySize, self.config.embeddingSize])
+      embeddingLookedUp = tf.nn.embedding_lookup(embedding, self._inputX)
+      inputs = tf.split(1, self.config.num_time_steps, embeddingLookedUp)
+      inputTensorsAsList = [tf.squeeze(input_, [1]) for input_ in inputs]
 
 
     #Define Tensor RNN
@@ -37,8 +42,6 @@ class CharRNNModel(object):
     #Define the loss
     loss = seq2seq.sequence_loss_by_example([self._logits], [tf.reshape(self._inputTargetsY, [-1])], [tf.ones([self.config.batch_size * self.config.num_time_steps])], self.vocabularySize)
     self._cost = tf.div(tf.reduce_sum(loss), self.config.batch_size)
-
-
 
     self._final_state = states[-1]
 
@@ -59,25 +62,6 @@ class CharRNNModel(object):
     optimizer = tf.train.AdamOptimizer(self.learningRate)
     self._tensorGradientDescentTrainingOperation = optimizer.apply_gradients(zip(grads, trainingVars))
 
-
-  def defineTensorRNNOperation(self,multiLayerRNNCellArch, inputTensorsAsList, config):
-    outputOfRecurrentHiddenLayer, states = rnn.rnn(multiLayerRNNCellArch, inputTensorsAsList, initial_state=self._initial_state)
-
-    outputOfRecurrentHiddenLayer = tf.reshape(tf.concat(1, outputOfRecurrentHiddenLayer), [-1, config.hidden_size])
-    logits = tf.nn.xw_plus_b(outputOfRecurrentHiddenLayer, tf.get_variable("softmax_w", [config.hidden_size, self.vocabularySize]), tf.get_variable("softmax_b", [self.vocabularySize]))
-
-    return logits, states
-
-
-  def prepareInputInBatchedFormWithEmbeddings(self, config):
-
-
-    with tf.device("/cpu:0"): #Tells Tensorflow what GPU to use specifically
-      embedding = tf.get_variable("embedding", [self.vocabularySize, config.embeddingSize])
-      embeddingLookedUp = tf.nn.embedding_lookup(embedding, self._inputX)
-      inputs = tf.split(1, config.num_time_steps, embeddingLookedUp)
-      inputTensorsAsList = [tf.squeeze(input_, [1]) for input_ in inputs]
-      return inputTensorsAsList
 
   def assign_learningRate(self, session, lr_value):
     session.run(tf.assign(self.learningRate, lr_value))
