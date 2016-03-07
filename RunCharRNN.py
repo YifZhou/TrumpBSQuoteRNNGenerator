@@ -37,43 +37,9 @@ tf.flags.DEFINE_integer("print_status_update_every", 100, "Prints a status updat
 if not os.path.exists(tf.flags.FLAGS.checkpoint_path):
     os.makedirs(tf.flags.FLAGS.checkpoint_path)
 
-global_step = 0
+# global_step = 0
 epochCount = 0
 lowest_validation_perplexity = 1000
-
-def run_epoch(modelType, data_reader, session, model, data, tensorOperationToPerform):
-
-  global global_step, lowest_validation_perplexity, epochCount
-
-  # start_time = time.time()
-  accumulatedCosts = 0.0
-  accumulatedNumberOfTimeSteps = 0
-  currentModelState = model.initial_state.eval()
-
-
-  lowest_perplexity = 2000
-
-  for num_time_steps_blocksCounter, (x_stepsBatchedInputData, y_stepsBatchedOutputData) in enumerate(data_reader.generateXYPairIterator(data, model.config.batch_size, model.config.sequence_size)):
-    # global_step= global_step+1
-    feed_dict = {model._inputX: x_stepsBatchedInputData, model._inputTargetsY: y_stepsBatchedOutputData, model.initial_state: currentModelState}
-
-    cost, currentModelState, _ = session.run([model.cost,  model.final_state, tensorOperationToPerform], feed_dict)
-    accumulatedCosts += cost
-    accumulatedNumberOfTimeSteps += model.config.sequence_size
-    perplexity =  np.exp(accumulatedCosts / accumulatedNumberOfTimeSteps)
-
-    # speed = accumulatedNumberOfTimeSteps * model.config.batch_size / (time.time() - start_time)
-
-    if modelType == "training" and num_time_steps_blocksCounter != 0 and num_time_steps_blocksCounter % tf.flags.FLAGS.checkpoint_every == 0:
-      epochPercentageAccomplished = num_time_steps_blocksCounter * 100.0 / ((  (len(data_reader.get_training_data()) // model.config.batch_size) - 1) // model.config.sequence_size)
-      print("Epoch %d %.3f%%, Perplexity: %.3f" % (epochCount, epochPercentageAccomplished, perplexity))
-
-      if perplexity < lowest_perplexity:
-        lowest_perplexity = perplexity
-        get_prediction(data_reader, session, 500, ['T','h','e',' '])
-
-
-  return perplexity
 
 
 def main(unused_args):
@@ -109,8 +75,32 @@ def main(unused_args):
       learningRateDecay = config.lr_decay ** max(epochCount - config.initialLearningRate_max_epoch, 0.0)
       training_model.assign_learningRate(session, config.learning_rate * learningRateDecay)
 
-      run_epoch("training", data_reader, session, training_model, data_reader.get_training_data(), training_model.tensorGradientDescentTrainingOperation)
+      global lowest_validation_perplexity
 
+      accumulatedCosts = 0.0
+      accumulatedNumberOfTimeSteps = 0
+      currentModelState = training_model.initial_state.eval()
+
+
+      lowest_perplexity = 2000
+
+      for num_time_steps_blocksCounter, (x_stepsBatchedInputData, y_stepsBatchedOutputData) in enumerate(data_reader.generateXYPairIterator(data_reader.get_training_data(), training_model.config.batch_size, training_model.config.sequence_size)):
+
+        feed_dict = {training_model._inputX: x_stepsBatchedInputData, training_model._inputTargetsY: y_stepsBatchedOutputData, training_model.initial_state: currentModelState}
+
+        cost, currentModelState, _ = session.run([training_model.cost,  training_model.final_state, training_model.tensorGradientDescentTrainingOperation], feed_dict)
+        accumulatedCosts += cost
+        accumulatedNumberOfTimeSteps += training_model.config.sequence_size
+        perplexity =  np.exp(accumulatedCosts / accumulatedNumberOfTimeSteps)
+
+
+        if  num_time_steps_blocksCounter != 0 and num_time_steps_blocksCounter % tf.flags.FLAGS.checkpoint_every == 0:
+          epochPercentageAccomplished = num_time_steps_blocksCounter * 100.0 / ((  (len(data_reader.get_training_data()) // training_model.config.batch_size) - 1) // training_model.config.sequence_size)
+          print("Epoch %d %.3f%%, Perplexity: %.3f" % (epochCount, epochPercentageAccomplished, perplexity))
+
+          if perplexity < lowest_perplexity:
+            lowest_perplexity = perplexity
+            get_prediction(data_reader, session, 500, ['T','h','e',' '])
 
   session.close()
 
