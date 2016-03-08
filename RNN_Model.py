@@ -35,9 +35,9 @@ class TrumpBSModel(object):
     self._initial_state = self.multilayerRNN.zero_state(self.config.batch_size, tf.float32)
 
     #Defining Logits
-    outputOfRecurrentHiddenLayer, states = rnn.rnn(self.multilayerRNN, inputTensorsAsList, initial_state=self._initial_state)
-    outputOfRecurrentHiddenLayer = tf.reshape(tf.concat(1, outputOfRecurrentHiddenLayer), [-1, self.config.hidden_size])
-    self._logits = tf.nn.xw_plus_b(outputOfRecurrentHiddenLayer, tf.get_variable("softmax_w", [self.config.hidden_size, self.vocabularySize]), tf.get_variable("softmax_b", [self.vocabularySize]))
+    hidden_layer_output, states = rnn.rnn(self.multilayerRNN, inputTensorsAsList, initial_state=self._initial_state)
+    hidden_layer_output = tf.reshape(tf.concat(1, hidden_layer_output), [-1, self.config.hidden_size])
+    self._logits = tf.nn.xw_plus_b(hidden_layer_output, tf.get_variable("softmax_w", [self.config.hidden_size, self.vocabularySize]), tf.get_variable("softmax_b", [self.vocabularySize]))
     self._predictionSoftmax = tf.nn.softmax(self._logits)
 
     #Define the loss
@@ -84,7 +84,7 @@ class TrumpBSModel(object):
     return self._learningRate
 
   @property
-  def tensorGradientDescentTrainingOperation(self):
+  def gradient_desc_training_op(self):
     return self._tensorGradientDescentTrainingOperation
 
   @property

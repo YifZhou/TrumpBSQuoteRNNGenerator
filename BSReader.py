@@ -18,7 +18,7 @@ import tensorflow as tf
 
 from tensorflow.python.platform import gfile
 
-class DataReader(object):
+class BSReader(object):
 
   def __init__(self, data_path, validation_data_to_training_ratio=5):
 
@@ -89,7 +89,7 @@ class DataReader(object):
     length = len(self.data_as_ids)-1
     return self.data_as_ids[self.test_data_min_index:length]
 
-  def generateXYPairIterator(self, raw_data, batch_size, num_steps):
+  def generateXYPairs(self, raw_data, batch_size, num_steps):
     raw_data = np.array(raw_data, dtype=np.int32)
 
     batch_len = len(raw_data) // batch_size

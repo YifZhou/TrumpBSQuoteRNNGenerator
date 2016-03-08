@@ -5,7 +5,7 @@ from __future__ import print_function
 
 
 from RNN_Model import TrumpBSModel
-from BSReader import DataReader
+from BSReader import BSReader
 import numpy as np
 import tensorflow as tf
 
@@ -18,74 +18,72 @@ def main(unused_args):
   if not tf.flags.FLAGS.dp:
     raise ValueError("Must set --data_path to PTB data directory")
 
-  data_reader = DataReader(tf.flags.FLAGS.dp,5)
-  data_reader.print_data_info()
+  bs_reader = BSReader(tf.flags.FLAGS.dp,5)
+  bs_reader.print_data_info()
 
 
   with tf.Graph().as_default(), tf.Session() as session:
     config = HyperParameterConfig()
     initializer = tf.random_uniform_initializer(-config.init_scale,config.init_scale)
 
-    with tf.variable_scope("model", reuse=None, initializer=initializer):
-      training_model = TrumpBSModel(data_reader.vocabularySize,config_param=config)
+    with tf.variable_scope("TrumpBSQuoteModel", reuse=None, initializer=initializer):
+      training_model = TrumpBSModel(bs_reader.vocabularySize,config_param=config)
       training_model.defineTensorGradientDescent()
-    with tf.variable_scope("model", reuse=True, initializer=initializer):
+    with tf.variable_scope("TrumpBSQuoteModel", reuse=True, initializer=initializer):
       eval_config = HyperParameterConfig()
       #We only want to input one token at a time (not as batches) and get out the next token only
       eval_config.batch_size = 1
       eval_config.num_time_steps = 1
-      test_model = TrumpBSModel(data_reader.vocabularySize, config_param=eval_config)
+      prediction_model = TrumpBSModel(bs_reader.vocabularySize, config_param=eval_config)
 
-    tf.initialize_all_variables().run()
-
+      tf.initialize_all_variables().run()
 
     for epochCount in range(config.total_max_epoch):
 
-      accumulatedCosts = 0.0
-      accumulatedNumberOfTimeSteps = 0
-      currentModelState = training_model.initial_state.eval()
+      accumulated_costs = 0.0
+      accumulated_seq_count = 0
+      current_model_state = training_model.initial_state.eval()
 
-      learningRateDecay = config.lr_decay ** max(epochCount - config.initialLearningRate_max_epoch, 0.0)
-      training_model.assign_learningRate(session, config.learning_rate * learningRateDecay)
+      #This can be removed and replaced by assigning just the initial learning rate
+      learning_rate_decay = config.lr_decay ** max(epochCount - config.initialLearningRate_max_epoch, 0.0)
+      training_model.assign_learningRate(session, config.learning_rate * learning_rate_decay)
 
       lowest_perplexity = 2000
 
-      for num_time_steps_blocksCounter, (x_stepsBatchedInputData, y_stepsBatchedOutputData) in enumerate(data_reader.generateXYPairIterator(data_reader.get_training_data(), training_model.config.batch_size, training_model.config.sequence_size)):
+      for sequence_counter, (x, y) in enumerate(bs_reader.generateXYPairs(bs_reader.get_training_data(), training_model.config.batch_size, training_model.config.sequence_size)):
 
-        feed_dict = {training_model._inputX: x_stepsBatchedInputData, training_model._inputTargetsY: y_stepsBatchedOutputData, training_model.initial_state: currentModelState}
+        feed_dict = {training_model._inputX: x, training_model._inputTargetsY: y, training_model.initial_state: current_model_state}
 
-        cost, currentModelState, _ = session.run([training_model.cost,  training_model.final_state, training_model.tensorGradientDescentTrainingOperation], feed_dict)
-        accumulatedCosts += cost
-        accumulatedNumberOfTimeSteps += training_model.config.sequence_size
-        perplexity =  np.exp(accumulatedCosts / accumulatedNumberOfTimeSteps)
+        cost, current_model_state, _ = session.run([training_model.cost, training_model.final_state, training_model.gradient_desc_training_op], feed_dict)
+        accumulated_costs += cost
+        accumulated_seq_count += training_model.config.sequence_size
+        perplexity =  np.exp(accumulated_costs / accumulated_seq_count)
 
-
-        if  num_time_steps_blocksCounter != 0 and num_time_steps_blocksCounter % tf.flags.FLAGS.ckpt == 0:
-          epochPercentageAccomplished = num_time_steps_blocksCounter * 100.0 / ((  (len(data_reader.get_training_data()) // training_model.config.batch_size) - 1) // training_model.config.sequence_size)
-          print("Epoch %d %.3f%%, Perplexity: %.3f" % (epochCount, epochPercentageAccomplished, perplexity))
+        if  sequence_counter != 0 and sequence_counter % tf.flags.FLAGS.ckpt == 0:
+          print("Epoch %d %.3f%%, Perplexity: %.3f" % (epochCount, perplexity))
 
           if perplexity < lowest_perplexity:
             lowest_perplexity = perplexity
-            get_prediction(test_model, data_reader, session, 500, ['T','h','e',' '])
+            get_prediction(prediction_model, bs_reader, session, 500, ['T','h','e',' '])
 
   session.close()
 
 
 
-def get_prediction(model, dataReader, session, total_tokens, output_tokens = [' ']):
+def get_prediction(model, bs_Reader, session, total_tokens, output_tokens = [' ']):
 
   state = model.multilayerRNN.zero_state(1, tf.float32).eval()
 
   for token_count in xrange(total_tokens):
       next_token = output_tokens[token_count]
-      input = np.full((model.config.batch_size, model.config.sequence_size), dataReader.token_to_id[next_token], dtype=np.int32)
+      input = np.full((model.config.batch_size, model.config.sequence_size), bs_Reader.token_to_id[next_token], dtype=np.int32)
       feed = {model._inputX: input, model._initial_state:state}
       [predictionSoftmax, state] =  session.run([model._predictionSoftmax, model._final_state], feed)
 
       if (len(output_tokens) -1) <= token_count:
           accumulated_sum = np.cumsum(predictionSoftmax[0])
           currentTokenId = (int(np.searchsorted(accumulated_sum, np.random.rand(1))))
-          next_token = dataReader.unique_tokens[currentTokenId]
+          next_token = bs_Reader.unique_tokens[currentTokenId]
           output_tokens.append(next_token)
 
   output_sentence = " "
