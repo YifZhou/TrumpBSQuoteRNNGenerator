@@ -60,7 +60,7 @@ def main(unused_args):
         perplexity =  np.exp(accumulated_costs / accumulated_seq_count)
 
         if  sequence_counter != 0 and sequence_counter % tf.flags.FLAGS.ckpt == 0:
-          print("Epoch %d %.3f%%, Perplexity: %.3f" % (epochCount, perplexity))
+          print("Epoch %d, Perplexity: %.3f" % (epochCount, perplexity))
 
           if perplexity < lowest_perplexity:
             lowest_perplexity = perplexity
