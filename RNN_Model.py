@@ -6,9 +6,9 @@ from __future__ import print_function
 
 
 import tensorflow as tf
-from tensorflow.models.rnn import rnn
-from tensorflow.models.rnn import rnn_cell
-from tensorflow.models.rnn import seq2seq
+from tensorflow.python.ops import rnn
+from tensorflow.python.ops import rnn_cell
+from tensorflow.python.ops import seq2seq
 
 
 class TrumpBSModel(object):
@@ -35,7 +35,7 @@ class TrumpBSModel(object):
     self._initial_state = self.multilayerRNN.zero_state(self.config.batch_size, tf.float32)
 
     #Defining Logits
-    hidden_layer_output, states = rnn.rnn(self.multilayerRNN, inputTensorsAsList, initial_state=self._initial_state)
+    hidden_layer_output, last_state = rnn.rnn(self.multilayerRNN, inputTensorsAsList, initial_state=self._initial_state)
     hidden_layer_output = tf.reshape(tf.concat(1, hidden_layer_output), [-1, self.config.hidden_size])
     self._logits = tf.nn.xw_plus_b(hidden_layer_output, tf.get_variable("softmax_w", [self.config.hidden_size, self.vocabularySize]), tf.get_variable("softmax_b", [self.vocabularySize]))
     self._predictionSoftmax = tf.nn.softmax(self._logits)
@@ -44,7 +44,7 @@ class TrumpBSModel(object):
     loss = seq2seq.sequence_loss_by_example([self._logits], [tf.reshape(self._inputTargetsY, [-1])], [tf.ones([self.config.batch_size * self.config.sequence_size])], self.vocabularySize)
     self._cost = tf.div(tf.reduce_sum(loss), self.config.batch_size)
 
-    self._final_state = states[-1]
+    self._final_state = last_state
 
 
   def defineTensorGradientDescent(self):
