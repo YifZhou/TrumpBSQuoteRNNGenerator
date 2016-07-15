@@ -74,7 +74,7 @@ def get_prediction(model, bs_Reader, session, total_tokens, output_tokens = [' '
 
   state = model.multilayerRNN.zero_state(1, tf.float32).eval()
 
-  for token_count in xrange(total_tokens):
+  for token_count in range(total_tokens):
       next_token = output_tokens[token_count]
       input = np.full((model.config.batch_size, model.config.sequence_size), bs_Reader.token_to_id[next_token], dtype=np.int32)
       feed = {model._inputX: input, model._initial_state:state}
