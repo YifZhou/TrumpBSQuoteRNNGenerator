@@ -8,8 +8,8 @@ from __future__ import print_function
 import tensorflow as tf
 # from tensorflow.python.ops import rnn
 # from tensorflow.python.ops import rnn_cell
-from tensorflow.contrib.rnn.python.ops import rnn
-from tensorflow.contrib.rnn.python.ops import rnn_cell
+from tensorflow.contrib import rnn
+from tensorflow.contrib.rnn.python.ops import core_rnn_cell as rnn_cell
 from tensorflow.contrib.legacy_seq2seq.python.ops import seq2seq
 # from tensorflow.python.ops import seq2seq
 
@@ -28,7 +28,7 @@ class TrumpBSModel(object):
     with tf.device("/cpu:0"): #Tells Tensorflow what GPU to use specifically
       embedding = tf.get_variable("embedding", [self.vocabularySize, self.config.embeddingSize])
       embeddingLookedUp = tf.nn.embedding_lookup(embedding, self._inputX)
-      inputs = tf.split(1, self.config.sequence_size, embeddingLookedUp)
+      inputs = tf.split(axis=1, num_or_size_splits=self.config.sequence_size, value=embeddingLookedUp)
       inputTensorsAsList = [tf.squeeze(input_, [1]) for input_ in inputs]
 
 
@@ -38,8 +38,8 @@ class TrumpBSModel(object):
     self._initial_state = self.multilayerRNN.zero_state(self.config.batch_size, tf.float32)
 
     #Defining Logits
-    hidden_layer_output, last_state = rnn.rnn(self.multilayerRNN, inputTensorsAsList, initial_state=self._initial_state)
-    hidden_layer_output = tf.reshape(tf.concat(1, hidden_layer_output), [-1, self.config.hidden_size])
+    hidden_layer_output, last_state = rnn.static_rnn(self.multilayerRNN, inputTensorsAsList, initial_state=self._initial_state)
+    hidden_layer_output = tf.reshape(tf.concat(axis=1, values=hidden_layer_output), [-1, self.config.hidden_size])
     self._logits = tf.nn.xw_plus_b(hidden_layer_output, tf.get_variable("softmax_w", [self.config.hidden_size, self.vocabularySize]), tf.get_variable("softmax_b", [self.vocabularySize]))
     self._predictionSoftmax = tf.nn.softmax(self._logits)
 

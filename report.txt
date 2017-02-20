@@ -1,0 +1,29 @@
+--------------------------------------------------------------------------------
+Processing file 'RNN_Model.py'
+ outputting to 'RNN_Model_upgrade.py'
+--------------------------------------------------------------------------------
+
+'RNN_Model.py' Line 42
+--------------------------------------------------------------------------------
+
+Added keyword 'concat_dim' to reordered function 'tf.concat'
+Added keyword 'values' to reordered function 'tf.concat'
+
+    Old:     hidden_layer_output = tf.reshape(tf.concat(1, hidden_layer_output), [-1, self.config.hidden_size])
+                                                                                                                
+    New:     hidden_layer_output = tf.reshape(tf.concat(axis=1, values=hidden_layer_output), [-1, self.config.hidden_size])
+                                                        ~~~~~   ~~~~~~~                                                     
+
+'RNN_Model.py' Line 31
+--------------------------------------------------------------------------------
+
+Added keyword 'axis' to reordered function 'tf.split'
+Added keyword 'num_or_size_splits' to reordered function 'tf.split'
+Added keyword 'value' to reordered function 'tf.split'
+
+    Old:       inputs = tf.split(1, self.config.sequence_size, embeddingLookedUp)
+                                                                                  
+    New:       inputs = tf.split(axis=1, num_or_size_splits=self.config.sequence_size, value=embeddingLookedUp)
+                                 ~~~~~   ~~~~~~~~~~~~~~~~~~~                           ~~~~~~                   
+
+
